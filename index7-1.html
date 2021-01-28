@@ -16,15 +16,15 @@
   <script>
     const add = (a, b) => a + b;
 
-    const range = l => {
-      let i = -1;
-      let res = [];
-      while (++i < l) {
-        // console.log(i, 'range');
-        res.push(i);
-      }
-      return res;
-    };
+    // const range = l => {
+    //   let i = -1;
+    //   let res = [];
+    //   while (++i < l) {
+    //     // console.log(i, 'range');
+    //     res.push(i);
+    //   }
+    //   return res;
+    // };
 
     // console.log(range(5));
     // console.log(range(2));
@@ -67,19 +67,38 @@
   </script>
 
   ## take
+  길이가 긴 배열의 처음 몇개만 구할 때.....
 
   <script>
     console.clear();
-    const take = (l, iter) => {
-      let res = [];
-      for (const a of iter) {
-        res.push(a);
-        if (res.length == l) return res;
-      }
-      return res;
-    }
-    console.log(take(5, range(100)));
-    console.log(take(5, L.range(100)));
+    // const take = curry((l, iter) => {
+    //   let res = [];
+    //   for (const a of iter) {
+    //     res.push(a);
+    //     if (res.length == l) return res;
+    //   }
+    //   return res;
+    // });
+    console.time('');
+    // console.log(take(5, range(100)));
+    go(
+      range(10000),
+      // take(5),
+      reduce(add),
+      console.log
+    ) 
+    // console.timeEnd();
+
+    console.time('');
+
+    go(
+      L.range(10000),
+      // take(5),
+      reduce(add),
+      console.log
+    ) 
+    console.timeEnd();
+    // console.log(take(5, L.range(100)));
   </script>
 </body>
 </html>

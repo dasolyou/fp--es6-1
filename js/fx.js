@@ -1,3 +1,5 @@
+const L = {};
+
 const curry = f => (a, ..._) =>_.length ? f(a, ..._) : (..._) => f(a, ..._);
 
 // map(조건/key함수, iterator)
@@ -32,3 +34,22 @@ const reduce = curry((f, acc, iter) => {
 
 const go = curry((...args) => reduce((a, f) => f(a), args)); 
 const pipe = (f, ...fs) => (...as) => go(f(...as), ...fs);
+
+const range = l => {
+  let i = -1;
+  let res = [];
+  while (++i < l) {
+    // console.log(i, 'range');
+    res.push(i);
+  }
+  return res;
+};
+
+const take = curry((l, iter) => {
+  let res = [];
+  for (const a of iter) {
+    res.push(a);
+    if (res.length == l) return res;
+  }
+  return res;
+});
