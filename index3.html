@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>03. 제너레이터와 이터레이터</title>
+</head>
+<body>
+
+  # 제너레이터/이터레이터
+- 제너레이터: 이터레이터이자 이터러블을 생성하는 함수
+: iterable를 리턴하는 함수
+
+<script>
+  function *gen() {
+    yield 1;
+    if (false) yield 2; // 문장으로도 가능
+    yield 3;
+    // return 100; // return값을 넣을 수 있음(마지막 done을 할 때 나오는 값), 순회할 때 return 값은 없이 순회함
+  }
+  let iter = gen();
+  console.log(iter.next());
+  console.log(iter.next());
+  console.log(iter.next());
+  console.log(iter.next());
+  // generator의 실행 결과는 iterator이자 iterable....
+  // js에서 iterable이면 어떤 값이든 순회할 수 있음
+  // generator에서 문장을 통해 순회할 수 있는 값을 만들 수 있기 때문에
+  // js에서 generator를 통해 어떤 값이든 순회하는 형태로 조작할 수 있음
+</script>
+
+# odds
+
+<script>
+  console.clear();
+  function *infinity(i = 0) { // 무한으로 생성하지만 내가 평가할 때만 나옴
+    while (true) yield i++;
+  }
+  function *limit(l, iter) {
+    for (const a of iter) {
+      yield a;
+      if (a == l) return;
+    }
+  }
+  // let iter4 = limit(3, [1, 2, 3, 4, 5]);
+  // console.log(iter4.next());
+  // console.log(iter4.next());
+
+  function *odds(l) { // l: limit값
+    for (const a of limit(l, infinity(1))) {
+      if (a % 2) yield a;
+    }
+  }
+  // function *odds(l) { // l: limit값
+  //   for (let i = 0; i < l; i++) {
+  //     if (i % 2) yield i;
+  //   }
+  // }
+  // let iter2 = odds(10);
+  // console.log(iter2.next());
+  // console.log(iter2.next());
+
+  // for (const a of odds(30)) console.log(a);
+</script>
+
+# for of, 전개 연산자, 구조 분해, 나머지 연산자
+
+<script>
+  // 전개 연산자
+  console.log(...odds(10));
+  console.log([...odds(10), ...odds(20)]);
+
+  //구조 분해
+  const [head, ...tail] = odds(5);
+  console.log(head);
+  console.log(tail);
+
+  const [a, b, ...rest] = odds(10);
+  console.log(a);
+  console.log(b);
+  console.log(rest);
+</script>
+
+
+</body>
+</html>

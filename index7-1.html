@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>07. 지연성 1 - 1</title>
+</head>
+<body>
+  <script src="./js/fx.js"></script>
+
+  ## range
+  숫자 하나를 받고 그 숫자의 크기만한 배열을 반환
+
+  range: array 만듦-> array를 iterator로 만듦-> next하면서 순회 
+  L.range: 실행-> iterator 만듦-> iterator를 갖고 자기 자신을 그대로 리턴하는 iterable-> 해당 함수 실행-> 이미 만들어진 iterator를 갖고 return만 하고 순회
+  <script>
+    const add = (a, b) => a + b;
+
+    const range = l => {
+      let i = -1;
+      let res = [];
+      while (++i < l) {
+        // console.log(i, 'range');
+        res.push(i);
+      }
+      return res;
+    };
+
+    // console.log(range(5));
+    // console.log(range(2));
+
+    var list = range(4);
+    // console.log(list);
+    // console.log(reduce(add, list));
+    // reduce에 list를 전달하기 전에 이미 range를 실행했을 때 list에 담긴 값이 log에 찍히는 배열인 상태 
+    // -> reduce를 실행하기 전에 이미 range가 실행됨
+
+  </script>
+
+  ## 느긋한 L.range
+
+  <script>
+    const L = {};
+    L.range = function *(l) {
+      let i = -1;
+      while (++i < l) {
+        // console.log(i, 'L.range');
+        yield i;
+      }
+    };
+
+    var list = L.range(4);
+    // console.log(list);
+    // console.log(reduce(add, list));
+
+    // reduce를 실행하기 전엔 range 실행되지 않음
+  </script>
+
+  <script>
+    function test(name, time, f) {
+      console.time(name);
+      while (time--) f();
+      console.timeEnd(name);
+    }
+    test('range', 10, () => reduce(add, range(10000000)));
+    test('L.range', 10, () => reduce(add, range(10000000)));
+  </script>
+
+  ## take
+
+  <script>
+    console.clear();
+    const take = (l, iter) => {
+      let res = [];
+      for (const a of iter) {
+        res.push(a);
+        if (res.length == l) return res;
+      }
+      return res;
+    }
+    console.log(take(5, range(100)));
+    console.log(take(5, L.range(100)));
+  </script>
+</body>
+</html>
