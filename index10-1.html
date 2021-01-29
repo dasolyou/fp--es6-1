@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>10. 비동기 동시성 프로그래밍 - 1</title>
+</head>
+<body>
+  <script src="./js/js10.js"></script>
+
+  
+  ## 지연 평가 + Promise - L.map, map, take
+
+  <script>
+    // go([Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)],
+    //   L.map(a => a + 10),
+    //   take(2),
+    //   console.log
+    // )
+    // go([1, 2, 3],
+    //   L.map(a => a + 10),
+    //   take(2),
+    //   console.log
+    // )
+    // go([1, 2, 3],
+    //   L.map(a => Promise.resolve(a + 10)),
+    //   take(2),
+    //   console.log
+    // )
+     /*  go(
+      [1, 2, 3],
+      L.map(a => Promise.resolve(a + 10)),
+      take(2),
+      log);
+    go(
+      [Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)],
+      L.map(a => a + 10),
+      take(2),
+      log);
+    go(
+      [Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)],
+      L.map(a => Promise.resolve(a + 10)),
+      take(2),
+      log);
+    go(
+      [1, 2, 3],
+      map(a => Promise.resolve(a + 10)),
+      log);
+    go(
+      [Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)],
+      map(a => a + 10),
+      log);
+    go(
+      [Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)],
+      map(a => Promise.resolve(a + 10)),
+      log);*/
+  </script>
+
+  ## Kleisli Composition - L.filter, filter, nop, take
+
+  <script>
+    go([1, 2, 3, 4, 5, 6],
+      L.map(a => Promise.resolve( a * a)),
+      L.filter(a => {
+        console.log(a)
+        return a % 2;
+      }),
+      take(2),
+      console.log
+    )
+  </script>
+
+  ## reduce에서 nop 지원
+
+  <script>
+    go(
+      [1, 2, 3, 4],
+      L.map(a => new Promise(resolve => setTimeout(() => resolve(a * a)))),
+      L.filter(a => a % 2),
+      reduce(add),
+      console.log
+    )
+  </script>
+
+  <script>
+  </script>
+
+</body>
+</html>

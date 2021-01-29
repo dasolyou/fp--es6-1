@@ -186,18 +186,57 @@
   ### reduce
 
   <script>
+    const join = curry((sep = ',', iter) =>
+      reduce((a, b) => `${a}${sep}${b}`, iter));
+
+    // iterable 프로토콜을 따른다 -> join에게 가기 전의 함수를 지연할 수 있다는 것
     const querStr = pipe(
       Object.entries,
-      map(([k, v]) => `${k} = ${v}`),
-      reduce((a, b) => `${a}&${b}`)
+      L.map(([k, v]) => `${k} = ${v}`),
+      // map(([k, v]) => `${k} = ${v}`),
+      // reduce((a, b) => `${a}&${b}`),
+      join('&')
     );
     console.log(querStr({ limit: 10, offset: 10, type: 'notice' }));
+
+    function *a() {
+      yield 10;
+      yield 11;
+      yield 12;
+      yield 13;
+    }
+    console.log(join(' - ', a()));
   </script>
 
   ### take, find
 
   <script>
+    const users = [
+      {age: 32},
+      {age: 31},
+      {age: 37},
+      {age: 28},
+      {age: 25},
+      {age: 32},
+      {age: 31},
+      {age: 37}
+    ];
 
+    const find = curry((f, iter) => go (
+      iter,
+      L.filter(f), 
+      // L.filter(a => (console.log(a), f(a))),
+      take(1),
+      ([a]) => a
+    ));
+
+    console.log(find(u => u.age < 30)(users));
+
+    go(users,
+      L.map(u => u.age),
+      find(n => n < 30),
+      console.log
+    )
   </script>
 </body>
 </html>

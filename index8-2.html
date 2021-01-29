@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>08. 지연성 2 - 2</title>
+</head>
+<body>
+  <script src="./js/fx.js"></script>
+
+  <script>
+    const L = {};
+    L.map = curry(function *(f, iter) {
+      for (const a of iter) yield f(a);
+    });
+
+    const map = curry((f, iter) => go(
+      iter, 
+      L.map(f),
+      takeAll
+    ));
+  </script>
+
+  ## L.flatten
+  배열들을 다 펼쳐서 하나의 배열로 만드는 함수
+
+  <script>
+    const takeAll = take(Infinity);
+
+    console.log([...[1, 2], 3, 4, ...[5, 6], ...[7, 8, 9]]);
+
+    const isIterable = a => a && a[Symbol.iterator];
+
+    L.flatten = function *(iter) {
+      for (const a of iter) {
+        if (isIterable(a)) for (const b of a) yield b;
+          else yield a;
+      }
+    }
+
+    var it = L.flatten([[1, 2], 3, 4, [5, 6], [7, 8, 9]]);
+    console.log(it.next());
+    console.log(it.next());
+    console.log(it.next());
+    console.log(take(6, L.flatten([[1, 2], 3, 4, [5, 6], [7, 8, 9]])));
+
+    const flatten = pipe(L.flatten, takeAll);
+    console.log(flatten([[1, 2], 3, 4, [5, 6], [7, 8, 9]]));
+  </script>
+
+  ## yield *
+
+  <script>
+  </script>
+
+  `yield *`을 활용하면 위 코드를 아래와 같이 변경할 수 있습니다. `yield *iterable`은 `for (const val of iterable) yield val;` 과 같습니다.
+
+  <script>
+    // L.flatten = function *(iter) {
+    //   for (const a of iter) {
+    //     if (isIterable(a)) for (const b of a) yield b
+    //     else yield a;
+    //   }
+    // };
+    // L.flatten = function *(iter) {
+    //   for (const a of iter) {
+    //     if (isIterable(a)) yield * a;
+    //     else yield a;
+    //   }
+    // }
+  </script>
+
+  ## L.deepFlat
+
+  만일 깊은 Iterable을 모두 펼치고 싶다면 아래와 같이 `L.deepFlat`을 구현하여 사용할 수 있습니다. `L.deepFlat`은 깊은 Iterable을 펼쳐줍니다.
+
+  <script>
+    L.deepFlat = function *f(iter) {
+      for (const a of iter) {
+        if (isIterable(a)) yield *f(a);
+        else yield a;
+      }
+    };
+    console.log([...L.deepFlat([1, [2, [3, 4], [[5]]]])]);
+  </script>
+
+  ## L.flatMap
+  js는 기본적으로 지연적 동장을 하지 않음
+  <script>
+    console.clear();
+    // console.log([[1, 2], [3, 4], [5, 6, 7]].flatMap(a => a));
+    // console.log([[1, 2], [3, 4], [5, 6, 7]].flatMap(a => a.map(a => a * a)));
+    // console.log(flatten([[1, 2], [3, 4], [5, 6, 7]].map(a => a.map(a => a * a))));
+
+    L.flatMap = curry(pipe(L.map, L.flatten));
+    // const flatMap = curry(pipe(L.map, flatten));
+    
+    var it = L.flatMap(map(a => a * a), [[1, 2], [3, 4], [5, 6, 7]]);
+    console.log([...it]);
+    // console.log(it.next());
+    // console.log(it.next());
+    // console.log(it.next());
+    console.log(flatMap(map(a => a * a), [[1, 2], [3, 4], [5, 6, 7]]));
+
+    console.log(flatMap(L.range, [1, 2, 3]));
+  </script>
+
+
+  ## 2차원 배열 다루기
+
+  <script>
+    // const arr = [
+    //   [1, 2],
+    //   [3, 4, 5],
+    //   [6, 7, 8],
+    //   [9, 10]
+    // ];
+    // go(arr, 
+    //   L.flatten,
+    //   L.filter(a => a % 2),
+    //   take(3),
+    //   reduce(4),
+    //   console.log
+    // );
+  </script>
+
+
+  ## 지연성 / 이터러블 중심 프로그래밍 실무적인 코드
+
+  <script></script>
+  </body>
+  </html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>08. 지연성 2 - 1</title>
+</head>
+<body>
+  <script src="./js/fx.js"></script>
+
+  <script>
+    const takeAll = take(Infinity);
+    // ## L.map + take로 map 만들기
+
+    L.map = curry(function *(f, iter) {
+      for (const a of iter) yield f(a);
+    });
+
+    const map = curry((f, iter) => go(
+      iter, 
+      L.map(f),
+      takeAll
+    ));
+
+    console.log(map(a => a + 10, L.range(4)));
+
+
+    // ## L.filter + take로 filter 만들기
+
+    L.filter = curry(function *(f, iter) {
+      for (const a of iter) {
+        if (f(a)) {
+          yield a;
+        }
+      }
+    });
+
+    const filter = curry(pipe(L.filter, takeAll));
+
+    console.log(filter(a => a % 2, range(4)));
+  </script>
+</body>
+</html>

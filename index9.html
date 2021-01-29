@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>09. 비동기 동시성 프로그래밍 -1</title>
+</head>
+<body>
+  <script src="./js/js2.js"></script>
+  # Promise
+
+  ## 일급
+  
+  <script>
+    function add10(a, callback) {
+      setTimeout(() => callback(a + 10), 1000);
+    }
+
+    var a = add10(5, res => {
+      add10(res, res => {
+        add10(res, res => {
+          // console.log(res);
+        })
+      })
+    });
+    // console.log(a);
+
+    // callback보다 promise가 좋은 이유
+    // 단순히 then으로 결과를 꺼내보는 것 뿐만 아니라
+    // 일급함수라는 것 -> 비동기 상황을 일급으로, 일급 값으로 다룬다는 것
+    // promise 클래스를 통해서 만들어진 인스턴스를 반환
+    // 그 값은 대기, 성공, 실패를 다루는 일급 값으로 이루어짐
+    // 일이 끝나는 것이 코드나 텍스트로만 다루는 것이 아니라
+    // 대기 되어지는 값을 만든다는 것이 가장 큰 차이
+    // 비동기 상황에 대한 값을 만들어서 리턴한다는 점!
+    function add20(a) {
+      return new Promise(resolve => setTimeout(() => resolve(a + 20), 100))
+    }
+    var b = add20(5)
+      .then(add20)
+      .then(add20)
+      .then(add20)
+      // .then(console.log)
+      
+    // b가 콘솔에 promise로 나온다는 점!
+    // console.log(b); 
+
+    
+  </script>
+  
+  ## 일급 활용
+  
+  <script>
+    console.clear();
+    // const go1 = (a, f) => f(a);
+    // const add5 = a => a + 5;
+
+    // console.log(go1(10, add5));
+
+    const delay100 = a => new Promise(resolve => 
+      setTimeout(() => resolve(a), 100));
+
+    const go1 = (a, f) => a instanceof Promise ? a.then(f) : f(a);
+    const add5 = a => a + 5;
+
+    const n1 = 10;
+    // console.log(go1(go1(n1, add5), console.log));
+    // go1(go1(n1, add5), console.log);
+
+    const n2 = delay100(10);
+    // console.log(go1(go1(n2, add5), console.log));
+    // go1(go1(n2, add5), console.log);
+   </script>
+  
+  ## Composition
+  
+  <script type="module">
+    // 함수 합성: f(g(x))
+    // 함수 합성할 때 상황에 따라 안전하게 합성하기 위해 모나드라는 개념 필요
+    // 비동기 상황을 안전하게 합성하는 것 -> promise
+    const g = a => a + 1;
+    const f = a => a * a;
+
+    console.log(f(g(1))); // 4
+    console.log(f(g())); // NaN -> 불안정한 합성
+
+    // console.log([1].map(g).map(f));
+    [1].map(g).map(f).forEach(r => console.log(r));
+    [].map(g).map(f).forEach(r => console.log(r));
+    // 배열 박스 안에 효과가 있는지 없는지에 따라 뒤 함수를 실행하지 않음 -> 안전한 합성
+    [1, 2, 3].map(g).map(f).filter(a => a % 2).forEach(r => console.log(r));
+
+    Promise.resolve(2).then(g).then(f).then(r => console.log(r));
+    Promise.resolve().then(g).then(f).then(r => console.log(r));
+    // new Promise(resolve =>
+    //   setTimeout(() => resolve(2), 1)).then(g).then(f).then(r => console.log(r));
+
+  </script>
+  
+  ## Kleisli Composition
+  오류가 있을 수 있는 상황에서의 함수 합성을 안전하게 하는 하나의 규칙 
+  잘못된 인자가 들어온 경우
+  인자가 잘 들어와도 어떤 함수가 의존하고 있는 외부의 상황에 의해 결과를 잘 전달할 수 없는 경우
+  <script>
+    // f(g(x)) = f(g(x))
+
+    var users = [
+      {id: 1, name: 'aa'},
+      {id: 2, name: 'bb'},
+      {id: 3, name: 'cc'}
+    ];
+
+    // const getUserById = id => find(u => u.id == id, users);
+
+    // // 안전한 함수 두개
+    // const f = ({name}) => name;
+    // const g = getUserById;
+
+    // // 두 함수 합성
+    // const fg = id => f(g(id));
+    // console.log(fg(2));
+
+    // const r = fg(2);
+
+    // // 외부 환경
+    // users.pop();
+    // users.pop();
+    // console.log(users);
+
+    // // 외부 환경으로 인한 에러 
+    // const r2 = fg(2);
+
+
+    // 에러를 없애기 위한 함수합성
+
+    const getUserById = id => find(u => u.id == id, users) || Promise.reject('없음');
+
+    const f = ({name}) => name;
+    const g = getUserById;
+
+    const fg = id => Promise.resolve(id).then(g).then(f).catch(a => a);
+    fg(2).then(console.log);
+  </script>
+
+  ## go, pipe, reduce에서 비동기 제어
+  <script>
+    go(1,
+      a => a + 10,
+      // a => Promise.resolve(a + 100), // 한번 비동기 적으로 실행하면 밑에도 비동기적으로 합성됨
+      a => Promise.reject('error!'),
+      a => console.log('-------'),
+      a => a + 100,
+      a => a + 1000,
+      console.log
+    ).catch(a => console.log(a));
+    // reduce 함수에서 
+    // 중간에 프로미스를 만나도 프로미스가 아닐 때는 동기적으로 계속해서 while문을 통해 넘어갈 수 있도록 구성하는 것이 좋음
+  </script>
+
+  ## promise.then의 중요한 규칙
+  then method를 통해서 결과를 꺼냈을 때 값이 반드시 promise는 아니다..........
+  <script>
+    Promise.resolve(Promise.resolve(Promise.resolve(1))).then(console.log);
+    // 프로미스 체인이 연속적으로 대기가 걸려있어도 원하는 곳에서 한번에 then으로 원햐는 결과를 얻을 수 있다는 말
+    // 아무리 깊이 프로미스 대기를 했어도 반드시 프로미스 안쪽에 있는 값을 한번에 꺼냄 
+    new Promise(resolve => resolve(new Promise(resolve => resolve(1)))).then(console.log());
+  </script>
+
+</body>
+</html>
